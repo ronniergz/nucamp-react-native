@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { FlatList, Text, ScrollView } from 'react-native';
 import { Card } from 'react-native-elements';
-import { CAMPSITES } from '../shared/campsites';
 
 class Contact extends Component {
   
