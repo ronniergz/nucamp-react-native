@@ -3,6 +3,15 @@ import { Text, View, ScrollView, FlatList} from 'react-native';
 import { Card , Icon } from 'react-native-elements';
 import { CAMPSITES } from '../shared/campsites';
 import { COMMENTS } from '../shared/comments';
+import { connect } from 'react-redux';
+import { baseUrl } from '../shared/baseUrl';
+
+const mapStateToProps = state => {
+  return {
+      campsites: state.campsites,
+      comments: state.comments
+  };
+};
 
 function RenderComments({comments}) {
 
@@ -36,7 +45,7 @@ function RenderCampsite(props) {
         return (
             <Card
                 featuredTitle={campsite.name}
-                image={require('./images/react-lake.jpg')}>
+                image={{uri: baseUrl + campsite.image}}>
                 <Text style={{margin: 10}}>
                     {campsite.description}
                 </Text>
@@ -82,15 +91,14 @@ class CampsiteInfo extends Component {
 
         return (
           <ScrollView>
-            <RenderCampsite 
-              campsite={campsite}
-              favorite={this.state.favorite}
-              markFavorite={() => this.markFavorite()}
+            <RenderCampsite campsite={campsite}
+                favorite={this.state.favorite}
+                markFavorite={() => this.markFavorite()}
             />
             <RenderComments comments={comments} />
-          </ScrollView>
+          </ScrollView>  
         );
     }
 }
 
-export default CampsiteInfo;
+export default connect(mapStateToProps)(CampsiteInfo);
