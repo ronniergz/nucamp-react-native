@@ -1,4 +1,4 @@
-export const baseUrl = 'http://192.168.1.82:3001/';
+export const baseUrl = 'http://192.168.1.81:3001/';
 
 // Macbook Air 1 192.168.1.81
 // Macbook Air 2 192.168.1.82
