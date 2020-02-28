@@ -12,7 +12,8 @@ import SafeAreaView from 'react-native-safe-area-view';
 import { connect } from 'react-redux';
 import { fetchCampsites, fetchComments, fetchPromotions,
     fetchPartners } from '../redux/ActionCreators';
-import Reservation from './ReservationComponent';    
+import Reservation from './ReservationComponent';   
+import Login from './LoginComponent'; 
 
 const mapDispatchToProps = {
     fetchCampsites,
@@ -48,6 +49,29 @@ const DirectoryNavigator = createStackNavigator(
         }
       }
     }
+);
+
+const LoginNavigator = createStackNavigator(
+  {
+      Login: { screen: Login }
+  },
+  {
+      navigationOptions: ({navigation}) => ({
+          headerStyle: {
+              backgroundColor: '#5637DD'
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+              color: '#fff'
+          },
+          headerLeft: <Icon
+              name='sign-in'
+              type='font-awesome'
+              iconStyle={styles.stackIcon}
+              onPress={() => navigation.toggleDrawer()}
+          />
+      })
+  }
 );
 
 const HomeNavigator = createStackNavigator(
@@ -186,93 +210,106 @@ const CustomDrawerContentComponent = props => (
 
 const MainNavigator = createDrawerNavigator(
     {
-        Home: { 
-          screen: HomeNavigator,
+      Login: {
+          screen: LoginNavigator,
           navigationOptions: {
-            drawerIcon: ({tintColor}) => (
-              <Icon
-                name='home'
-                type='font-awesome'
-                size={24}
-                color={tintColor}
-              />
-            )
-          }
-        },
-        Directory: { 
-          screen: DirectoryNavigator,
-          navigationOptions: {
-            drawerIcon: ({tintColor}) => (
-              <Icon
-                name='list'
-                type='font-awesome'
-                size={24}
-                color={tintColor}
-              />
-            )
-          }
-        },
-        Reservation: {
-          screen: ReservationNavigator,
-          navigationOptions: {
-              drawerLabel: 'Reserve Campsite',
               drawerIcon: ({tintColor}) => (
                   <Icon
-                      name='tree'
+                      name='sign-in'
                       type='font-awesome'
                       size={24}
                       color={tintColor}
                   />
               )
           }
-        },
-        Favorites: {
-          screen: FavoritesNavigator,
-          navigationOptions: {
-              drawerLabel: 'My Favorites',
-              drawerIcon: ({tintColor}) => (
-                  <Icon
-                      name='heart'
-                      type='font-awesome'
-                      size={24}
-                      color={tintColor}
-                  />
-              )
-          }
-        },        
-        About: { 
-          screen: AboutNavigator,
-          navigationOptions: {
+      },      
+      Home: { 
+        screen: HomeNavigator,
+        navigationOptions: {
+          drawerIcon: ({tintColor}) => (
+            <Icon
+              name='home'
+              type='font-awesome'
+              size={24}
+              color={tintColor}
+            />
+          )
+        }
+      },
+      Directory: { 
+        screen: DirectoryNavigator,
+        navigationOptions: {
+          drawerIcon: ({tintColor}) => (
+            <Icon
+              name='list'
+              type='font-awesome'
+              size={24}
+              color={tintColor}
+            />
+          )
+        }
+      },
+      Reservation: {
+        screen: ReservationNavigator,
+        navigationOptions: {
+            drawerLabel: 'Reserve Campsite',
             drawerIcon: ({tintColor}) => (
-              <Icon
-                name='info-circle'
-                type='font-awesome'
-                size={24}
-                color={tintColor}
-              />
+                <Icon
+                    name='tree'
+                    type='font-awesome'
+                    size={24}
+                    color={tintColor}
+                />
             )
-          }
-        },
-        Contact: { 
-          screen: ContactNavigator,
-          navigationOptions: {
+        }
+      },
+      Favorites: {
+        screen: FavoritesNavigator,
+        navigationOptions: {
+            drawerLabel: 'My Favorites',
             drawerIcon: ({tintColor}) => (
-              <Icon
-                name='address-card'
-                type='font-awesome'
-                size={24}
-                color={tintColor}
-              />
+                <Icon
+                    name='heart'
+                    type='font-awesome'
+                    size={24}
+                    color={tintColor}
+                />
             )
-          }
-        },
-
-        
+        }
+      },        
+      About: { 
+        screen: AboutNavigator,
+        navigationOptions: {
+          drawerIcon: ({tintColor}) => (
+            <Icon
+              name='info-circle'
+              type='font-awesome'
+              size={24}
+              color={tintColor}
+            />
+          )
+        }
+      },
+      Contact: { 
+        screen: ContactNavigator,
+        navigationOptions: {
+          drawerIcon: ({tintColor}) => (
+            <Icon
+              name='address-card'
+              type='font-awesome'
+              size={24}
+              color={tintColor}
+            />
+          )
+        }
+      },  
     },
     {
-        drawerBackgroundColor: '#CEC8FF',
-        contentComponent: CustomDrawerContentComponent
-    }
+      initialRouteName: 'Home',
+      drawerBackgroundColor: '#CEC8FF',
+      contentComponent: CustomDrawerContentComponent
+    },
+    
 )
 
 class Main extends Component {
