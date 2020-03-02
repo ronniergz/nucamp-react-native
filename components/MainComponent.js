@@ -10,8 +10,7 @@ import { createStackNavigator, createDrawerNavigator, DrawerItems } from 'react-
 import { Icon } from  'react-native-elements';
 import SafeAreaView from 'react-native-safe-area-view';
 import { connect } from 'react-redux';
-import { fetchCampsites, fetchComments, fetchPromotions,
-    fetchPartners } from '../redux/ActionCreators';
+import { fetchCampsites, fetchComments, fetchPromotions, fetchPartners } from '../redux/ActionCreators';
 import Reservation from './ReservationComponent';   
 import Login from './LoginComponent'; 
 import NetInfo from '@react-native-community/netinfo';
@@ -315,30 +314,32 @@ const MainNavigator = createDrawerNavigator(
 
 class Main extends Component {
 
-    componentDidMount() {
-        this.props.fetchCampsites();
-        this.props.fetchComments();
-        this.props.fetchPromotions();
-        this.props.fetchPartners();
-
-        NetInfo.fetch().then(connectionInfo => {
-          (Platform.OS === 'ios') ?
-              Alert.alert('Initial Network Connectivity Type:', connectionInfo.type)
-              : ToastAndroid.show('Initial Network Connectivity Type: ' +
-                  connectionInfo.type, ToastAndroid.LONG);
-      });
-
-      this.unsubscribeNetInfo = NetInfo.addEventListener(connectionInfo => {
-          this.handleConnectivityChange(connectionInfo);
-      });
-
-    }
-
-    
-    componentWillUnmount() {
-      this.unsubscribeNetInfo();
+  componentDidMount() {
+    this.props.fetchCampsites();
+    this.props.fetchComments();
+    this.props.fetchPromotions();
+    this.props.fetchPartners();
+    this.showNetInfo();   
+    this.unsubscribeNetInfo = NetInfo.addEventListener(connectionInfo => {
+      this.handleConnectivityChange(connectionInfo);
+    });
+      
   }
   
+  componentWillUnmount() {
+    this.unsubscribeNetInfo();
+  }
+
+  showNetInfo = async () => {
+    const NetworkInfo = await NetInfo.fetch()
+    NetworkInfo(connectionInfo => {
+    (Platform.OS === 'ios') ?
+        Alert.alert('Initial Network Connectivity Type:', connectionInfo.type)
+        : ToastAndroid.show('Initial Network Connectivity Type: ' +
+            connectionInfo.type, ToastAndroid.LONG);
+    })
+  }
+
   handleConnectivityChange = connectionInfo => {
       let connectionMsg = 'You are now connected to an active network.';
       switch (connectionInfo.type) {

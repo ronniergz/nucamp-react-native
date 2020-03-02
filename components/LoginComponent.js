@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
-import { View, StyleSheet, ScrollView, Image } from 'react-native';
+import { View, StyleSheet, ScrollView, Image} from 'react-native';
 import { Input, CheckBox, Button, Icon } from 'react-native-elements';
 import * as SecureStore from 'expo-secure-store';
-import * as ImagePicker from 'expo-image-picker';
-import * as Permissions from 'expo-permissions';
 import { createBottomTabNavigator } from 'react-navigation';
 import { baseUrl } from '../shared/baseUrl';
-
+import * as ImageManipulator from 'expo-image-manipulator';
+import * as ImagePicker from 'expo-image-picker';
+import * as Permissions from 'expo-permissions';
+import CameraRoll from '@react-native-community/cameraroll';
 
 class LoginTab extends Component {
 
@@ -148,17 +149,43 @@ class RegisterTab extends Component {
   getImageFromCamera = async () => {
       const cameraPermission = await Permissions.askAsync(Permissions.CAMERA);
       const cameraRollPermission = await Permissions.askAsync(Permissions.CAMERA_ROLL);
-
+      
       if (cameraPermission.status === 'granted' && cameraRollPermission.status === 'granted') {
-          const capturedImage = await ImagePicker.launchCameraAsync({
-              allowsEditing: true,
-              aspect: [1, 1]
-          });
-          if (!capturedImage.cancelled) {
-              console.log(capturedImage);
-              this.setState({imageUrl: capturedImage.uri});
-          }
+        const capturedImage = await ImagePicker.launchCameraAsync({
+          allowsEditing: true,
+          aspect: [1, 1]
+        });
+        if (!capturedImage.cancelled) {
+          console.log(capturedImage);
+          this.processImage(capturedImage.uri);
+        }
       }
+    }
+    
+  getImageFromGallery = async () => {
+    const cameraRollPermission = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+    if (cameraRollPermission.status === 'granted') {
+      console.log("received permission");
+      const chosenImage = await ImagePicker.launchImageLibraryAsync({
+        allowsEditing: true,
+        aspect: [1, 1]
+      });
+      if (!chosenImage.cancelled) {
+        console.log(chosenImage);
+        this.processImage(chosenImage.uri);
+      }
+    }
+  }
+
+  processImage = async (imgUri) => {
+    const processedImage = await ImageManipulator.manipulateAsync(
+      imgUri,
+      [{ resize : { width: 400 } }],
+      { format: 'png' }
+    );
+    console.log(processedImage);
+    this.setState({imageUrl: processedImage.uri});
+    CameraRoll.saveToCameraRoll(processedImage.uri, 'photo');
   }
 
   handleRegister() {
@@ -174,85 +201,89 @@ class RegisterTab extends Component {
   }
 
   render() {
-      return (
-          <ScrollView>
-              <View style={styles.container}>
-                  <View style={styles.imageContainer}>
-                      <Image
-                          source={{uri: this.state.imageUrl}}
-                          loadingIndicatorSource={require('./images/logo.png')}
-                          style={styles.image}
-                      />
-                      <Button
-                          title='Camera'
-                          onPress={this.getImageFromCamera}
-                      />
-                  </View>
-                  <Input
-                      placeholder='Username'
-                      leftIcon={{type: 'font-awesome', name: 'user-o'}}
-                      onChangeText={username => this.setState({username})}
-                      value={this.state.username}
-                      containerStyle={styles.formInput}
-                      leftIconContainerStyle={styles.formIcon}
-                  />
-                  <Input
-                      placeholder='Password'
-                      leftIcon={{type: 'font-awesome', name: 'key'}}
-                      onChangeText={password => this.setState({password})}
-                      value={this.state.password}
-                      containerStyle={styles.formInput}
-                      leftIconContainerStyle={styles.formIcon}
-                  />
-                  <Input
-                      placeholder='First Name'
-                      leftIcon={{type: 'font-awesome', name: 'user-o'}}
-                      onChangeText={firstname => this.setState({firstname})}
-                      value={this.state.firstname}
-                      containerStyle={styles.formInput}
-                      leftIconContainerStyle={styles.formIcon}
-                  />
-                  <Input
-                      placeholder='Last Name'
-                      leftIcon={{type: 'font-awesome', name: 'user-o'}}
-                      onChangeText={lastname => this.setState({lastname})}
-                      value={this.state.lastname}
-                      containerStyle={styles.formInput}
-                      leftIconContainerStyle={styles.formIcon}
-                  />
-                  <Input
-                      placeholder='Email'
-                      leftIcon={{type: 'font-awesome', name: 'envelope-o'}}
-                      onChangeText={email => this.setState({email})}
-                      value={this.state.email}
-                      containerStyle={styles.formInput}
-                      leftIconContainerStyle={styles.formIcon}
-                  />
-                  <CheckBox
-                      title='Remember Me'
-                      center
-                      checked={this.state.remember}
-                      onPress={() => this.setState({remember: !this.state.remember})}
-                      containerStyle={styles.formCheckbox}
-                  />
-                  <View style={styles.formButton}>
-                      <Button
-                          onPress={() => this.handleRegister()}
-                          title='Register'
-                          icon={
-                              <Icon
-                                  name='user-plus'
-                                  type='font-awesome'
-                                  color='#fff'
-                                  iconStyle={{marginRight: 10}}
-                              />
-                          }
-                          buttonStyle={{backgroundColor: '#5637DD'}}
-                      />
-                  </View>
-              </View>
-          </ScrollView>
-      );
+    return (
+      <ScrollView>
+        <View style={styles.container}>
+          <View style={styles.imageContainer}>
+            <Image
+              source={{uri: this.state.imageUrl}}
+              loadingIndicatorSource={require('./images/logo.png')}
+              style={styles.image}
+            />
+            <Button
+              title='Camera'
+              onPress={this.getImageFromCamera}
+            />
+            <Button
+              title='Gallery'
+              onPress={this.getImageFromGallery}
+            />
+          </View>
+          <Input
+            placeholder='Username'
+            leftIcon={{type: 'font-awesome', name: 'user-o'}}
+            onChangeText={username => this.setState({username})}
+            value={this.state.username}
+            containerStyle={styles.formInput}
+            leftIconContainerStyle={styles.formIcon}
+          />
+          <Input
+            placeholder='Password'
+            leftIcon={{type: 'font-awesome', name: 'key'}}
+            onChangeText={password => this.setState({password})}
+            value={this.state.password}
+            containerStyle={styles.formInput}
+            leftIconContainerStyle={styles.formIcon}
+          />
+          <Input
+            placeholder='First Name'
+            leftIcon={{type: 'font-awesome', name: 'user-o'}}
+            onChangeText={firstname => this.setState({firstname})}
+            value={this.state.firstname}
+            containerStyle={styles.formInput}
+            leftIconContainerStyle={styles.formIcon}
+          />
+          <Input
+            placeholder='Last Name'
+            leftIcon={{type: 'font-awesome', name: 'user-o'}}
+            onChangeText={lastname => this.setState({lastname})}
+            value={this.state.lastname}
+            containerStyle={styles.formInput}
+            leftIconContainerStyle={styles.formIcon}
+          />
+          <Input
+            placeholder='Email'
+            leftIcon={{type: 'font-awesome', name: 'envelope-o'}}
+            onChangeText={email => this.setState({email})}
+            value={this.state.email}
+            containerStyle={styles.formInput}
+            leftIconContainerStyle={styles.formIcon}
+          />
+          <CheckBox
+            title='Remember Me'
+            center
+            checked={this.state.remember}
+            onPress={() => this.setState({remember: !this.state.remember})}
+            containerStyle={styles.formCheckbox}
+          />
+          <View style={styles.formButton}>
+            <Button
+              onPress={() => this.handleRegister()}
+              title='Register'
+              icon={
+                <Icon
+                  name='user-plus'
+                  type='font-awesome'
+                  color='#fff'
+                  iconStyle={{marginRight: 10}}
+                />
+              }
+              buttonStyle={{backgroundColor: '#5637DD'}}
+            />
+          </View>
+        </View>
+      </ScrollView>
+    );
   }
 }
 
